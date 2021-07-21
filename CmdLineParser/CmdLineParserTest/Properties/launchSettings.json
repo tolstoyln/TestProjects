@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CmdLineParserTest": {
+      "commandName": "Project",
+      "commandLineArgs": "\"First input param\" /Switch2 \"Second input param\" /Switch1 -string1=Ku-ku /Animal=Bird /Currency:Yen -Integer2:-999"
+    }
+  }
+}
