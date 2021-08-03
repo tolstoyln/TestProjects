@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <vector>
@@ -69,7 +70,7 @@ int OddOccurrencesInArray(const std::vector<int>& A)
 
     std::for_each(A.begin(), A.end(), [&m](int i)
         {
-            m[i] = ++m[i];
+            ++m[i];
         });
 
     return std::find_if(m.begin(), m.end(), [](const auto& it) {return (it.second & 1) != 0; })->first;
@@ -80,13 +81,13 @@ int FrogJmp(int X, int Y, int D)
     return (Y - X) / D + ((Y - X) % D == 0 ? 0 : 1);
 }
 
-int PermMissingElem(const std::vector<int>& A)
+intptr_t PermMissingElem(const std::vector<int>& A)
 {
     std::vector<bool> v(A.size() + 1, false);
 
-    std::for_each(A.begin(), A.end(), [&v](int i) { v[i - 1] = true; });
+    std::for_each(A.begin(), A.end(), [&v](size_t i) { v[i - 1] = true; });
 
-    return std::find_if(v.begin(), v.end(), [](bool b) { return !b; }) - v.begin() + 1;
+    return std::distance(v.begin(), std::find_if(v.begin(), v.end(), [](bool b) { return !b; })) + 1;
 }
 
 int TapeEquilibrium(const std::vector<int>& A)
@@ -105,7 +106,7 @@ int TapeEquilibrium(const std::vector<int>& A)
         r[i - 1] = A[i] + ((i < A.size() - 1) ? r[i] : 0);
     }
 
-    int result = std::numeric_limits<int>::max();
+    int result = std::numeric_limits<decltype(result)>::max();
 
     for (size_t i = 0; i < l.size(); ++i)
     {
@@ -116,13 +117,14 @@ int TapeEquilibrium(const std::vector<int>& A)
     return result;
 }
 
-int FrogRiverOne(int X, const std::vector<int>& A)
+intptr_t FrogRiverOne(int X, const std::vector<int>& A)
 {
     std::unordered_set<int> s;
 
     for (size_t i = 0; i < A.size(); ++i)
     {
         s.insert(A[i]);
+
         if (s.size() == static_cast<size_t>(X))
         {
             return i;
@@ -137,7 +139,7 @@ std::vector<int> MaxCounters(int N, const std::vector<int>& A)
     std::vector<int> v(N);
     int curMaxVal = 0, setMaxVal = 0;
 
-    std::for_each(A.begin(), A.end(), [&](int i)
+    std::for_each(A.begin(), A.end(), [&](intptr_t i)
         {
             if (i > N || i <= 0)
             {
@@ -146,7 +148,7 @@ std::vector<int> MaxCounters(int N, const std::vector<int>& A)
             else
             {
                 v[i - 1] = std::max(v[i - 1], setMaxVal);
-                v[i - 1] = ++v[i - 1];
+                ++v[i - 1];
                 curMaxVal = std::max(curMaxVal, v[i - 1]);
             }
         });
@@ -156,9 +158,9 @@ std::vector<int> MaxCounters(int N, const std::vector<int>& A)
     return v;
 }
 
-int MissingInteger(const std::vector<int>& A)
+intptr_t MissingInteger(const std::vector<int>& A)
 {
-    std::unordered_set<int> s(A.begin(), A.end());
+    std::unordered_set<size_t> s(A.begin(), A.end());
 
     for (size_t i = 1; i <= s.size() + 1; ++i)
     {
@@ -173,7 +175,7 @@ int MissingInteger(const std::vector<int>& A)
 
 int PermCheck(const std::vector<int>& A)
 {
-    std::unordered_set<int> s(A.begin(), A.end());
+    std::unordered_set<size_t> s(A.begin(), A.end());
 
     if (s.size() != A.size())
     {
@@ -212,15 +214,15 @@ std::vector<int> GenomicRangeQuery(const std::string& S, const std::vector<int>&
         res[i] = *std::min_element(imp.begin() + P[i], imp.begin() + Q[i] + 1);
     }*/
 
-    std::unordered_map<char, int> def{ {'A', 1}, {'C', 2}, {'G', 3}, {'T', 4} };
+    std::unordered_map<char, size_t> def{ {'A', 1}, {'C', 2}, {'G', 3}, {'T', 4} };
 
-    std::vector<int> imp[4]{ std::vector<int>(S.length()), std::vector<int>(S.length()), std::vector<int>(S.length()), std::vector<int>(S.length()) };
+    std::vector<std::vector<int>> imp(def.size(), std::vector<int>(S.length()));
 
     for (size_t i = 0; i < S.length(); ++i)
     {
         size_t idx = def[S[i]] - 1;
 
-        for (size_t j = 0; j < sizeof(imp) / sizeof(imp[0]); ++j)
+        for (size_t j = 0; j < imp.size(); ++j)
         {
             imp[j][i] = (i > 0 ? imp[j][i - 1] : 0) + (j == idx ? 1 : 0);
         }
@@ -230,11 +232,11 @@ std::vector<int> GenomicRangeQuery(const std::string& S, const std::vector<int>&
 
     for (size_t i = 0; i < P.size(); ++i)
     {
-        for (size_t j = 0; j < sizeof(imp) / sizeof(imp[0]); ++j)
+        for (size_t j = 0; j < imp.size(); ++j)
         {
             if (def[S[P[i]]] == j + 1 || imp[j][Q[i]] - imp[j][P[i]] > 0)
             {
-                res[i] = j + 1;
+                res[i] = static_cast<int>(j) + 1;
                 break;
             }
         }
@@ -243,14 +245,14 @@ std::vector<int> GenomicRangeQuery(const std::string& S, const std::vector<int>&
     return res;
 }
 
-int MinAvgTwoSlice(const std::vector<int>& A)
+intptr_t MinAvgTwoSlice(const std::vector<int>& A)
 {
-    int minSum = std::numeric_limits<int>::max();
+    int minSum = std::numeric_limits<decltype(minSum)>::max();
     size_t idx = 0;
 
     for (size_t i = 0; i < A.size() - 1; ++i)
     {
-        int sum = std::min((A[i] + A[i + 1]) * 3, (i < A.size() - 2) ? (A[i] + A[i + 1] + A[i + 2]) * 2 : std::numeric_limits<int>::max());
+        int sum = std::min((A[i] + A[i + 1]) * 3, (i < A.size() - 2) ? (A[i] + A[i + 1] + A[i + 2]) * 2 : std::numeric_limits<decltype(minSum)>::max());
 
         if (sum < minSum)
         {
@@ -287,7 +289,7 @@ int PassingCars(const std::vector<int>& A)
     return result;
 }
 
-int Distinct(const std::vector<int>& A)
+intptr_t Distinct(const std::vector<int>& A)
 {
     return std::unordered_set<int>(A.begin(), A.end()).size();
 }
@@ -299,7 +301,7 @@ int MaxProductOfThree(const std::vector<int>& A)
     auto itl = s.begin();
     auto itr = --s.end();
 
-    int pl = std::numeric_limits<int>::min();
+    int pl = std::numeric_limits<decltype(pl)>::min();
 
     if (*itl < 0)
     {
@@ -386,7 +388,7 @@ int Brackets(const std::string& S)
     return s.empty() ? 1 : 0;
 }
 
-int Fish(const std::vector<int>& A, const std::vector<int>& B)
+intptr_t Fish(const std::vector<int>& A, const std::vector<int>& B)
 {
     std::stack<std::pair<int, int>> s;
 
@@ -445,7 +447,7 @@ int StoneWall(const std::vector<int>& H)
     return count;
 }
 
-int Dominator(const std::vector<int>& A)
+intptr_t Dominator(const std::vector<int>& A)
 {
     std::stack<int> s;
 
@@ -601,7 +603,7 @@ int CountFactors(int N)
 
 int MinPerimeterRectangle(int N)
 {
-    int result = std::numeric_limits<int>::max();
+    int result = std::numeric_limits<decltype(result)>::max();
     int max = static_cast<int>(std::sqrt(N));
     int i = 0;
 
@@ -616,17 +618,17 @@ int MinPerimeterRectangle(int N)
     return result;
 }
 
-int Flags(const std::vector<int>& A)
+intptr_t Flags(const std::vector<int>& A)
 {
     if (A.size() < 3)
     {
         return 0;
     }
 
-    std::vector<int> peaks;
+    std::vector<intptr_t> peaks;
     peaks.reserve(A.size() - 2);
 
-    for (int i = 1; i < static_cast<int>(A.size()) - 1; ++i)
+    for (size_t i = 1; i < A.size() - 1; ++i)
     {
         if (A[i - 1] < A[i] && A[i] > A[i + 1])
         {
@@ -639,9 +641,9 @@ int Flags(const std::vector<int>& A)
         return peaks.size();
     }
 
-    for (int i = static_cast<int>(std::sqrt(peaks[peaks.size() - 1] - peaks[0])) + 1; i > 1; --i)
+    for (intptr_t i = static_cast<intptr_t>(std::sqrt(peaks[peaks.size() - 1] - peaks[0])) + 1; i > 1; --i)
     {
-        for (int j = 0, sum = 0, flags = 1; j < static_cast<int>(peaks.size()) - 1; ++j)
+        for (intptr_t j = 0, sum = 0, flags = 1; j < static_cast<intptr_t>(peaks.size()) - 1; ++j)
         {
             if (sum + peaks[j + 1] - peaks[j] >= i)
             {
@@ -669,7 +671,7 @@ int Peaks(const std::vector<int>& A)
     {
         std::vector<int> peaks(A.size(), 0);
 
-        for (int i = 1; i < static_cast<int>(A.size()) - 1; ++i)
+        for (intptr_t i = 1; i < static_cast<decltype(i)>(A.size()) - 1; ++i)
         {
             if (A[i - 1] < A[i] && A[i] > A[i + 1])
             {
@@ -679,14 +681,14 @@ int Peaks(const std::vector<int>& A)
 
         if (std::find(peaks.begin(), peaks.end(), 1) != peaks.end())
         {
-            for (int i = A.size() / 2; i > 0; --i)
+            for (intptr_t i = A.size() / 2; i > 0; --i)
             {
-                if (A.size() % i == 0 && i <= static_cast<int>(peaks.size()))
+                if (A.size() % i == 0 && i <= static_cast<decltype(i)>(peaks.size()))
                 {
-                    int size = A.size() / i;
+                    intptr_t size = A.size() / i;
                     int blocks = 0;
 
-                    for (int j = 0; j < i; ++j)
+                    for (intptr_t j = 0; j < i; ++j)
                     {
                         if (std::find(peaks.data() + size * j, peaks.data() + size * (j + 1), 1) == peaks.data() + size * (j + 1))
                         {
@@ -711,9 +713,9 @@ int Peaks(const std::vector<int>& A)
 std::vector<int> CountNonDivisible(const std::vector<int>& A)
 {
     std::unordered_map<int, int> count;
-    std::for_each(A.begin(), A.end(), [&](int a) { count[a] = ++count[a]; });
+    std::for_each(A.begin(), A.end(), [&](int a) { ++count[a]; });
 
-    std::vector<int> result(A.size(), A.size());
+    std::vector<int> result(A.size(), static_cast<int>(A.size()));
 
     for (size_t i = 0; i < A.size(); ++i)
     {
@@ -739,19 +741,19 @@ bool _IsCube(int n)
 
 std::vector<int> CountSemiprimes(int N, const std::vector<int>& P, const std::vector<int>& Q)
 {
-    std::vector<int> sp(N + 1, 0);
+    std::vector<int> sp(static_cast<size_t>(N) + 1, 0);
 
     for (int i = 1; i <= N; ++i)
     {
         int divs = CountFactors(i);
-        sp[i] = sp[i - 1] + ((divs == 3 || divs == 4 && !_IsCube(i)) ? 1 : 0);
+        sp[i] = sp[static_cast<size_t>(i) - 1] + ((divs == 3 || divs == 4 && !_IsCube(i)) ? 1 : 0);
     }
 
     std::vector<int> res(P.size(), 0);
 
     for (size_t i = 0; i < P.size(); ++i)
     {
-        res[i] = sp[Q[i]] - sp[P[i] - 1];
+        res[i] = sp[Q[i]] - sp[static_cast<size_t>(P[i]) - 1];
     }
 
     return res;
@@ -810,12 +812,12 @@ int CommonPrimeDivisors(const std::vector<int>& A, const std::vector<int>& B)
     return count;
 }
 
-int FibonacciAt(int idx)
+intptr_t FibonacciAt(intptr_t idx)
 {
-    std::vector<int> f(idx + 1, 0);
+    std::vector<intptr_t> f(idx + 1, 0);
     f[1] = 1;
 
-    for (int i = 2; i <= idx; ++i)
+    for (intptr_t i = 2; i <= idx; ++i)
     {
         f[i] = f[i - 2] + f[i - 1];
     }
@@ -823,9 +825,9 @@ int FibonacciAt(int idx)
     return f[idx];
 }
 
-std::vector<int> FibonacciUpTo(int n)
+std::vector<intptr_t> FibonacciUpTo(intptr_t n)
 {
-    std::vector<int> f{ 1, 2 };
+    std::vector<intptr_t> f{ 1, 2 };
     size_t i = 1;
 
     while (f[i++] < n)
@@ -836,17 +838,17 @@ std::vector<int> FibonacciUpTo(int n)
     return f;
 }
 
-int FibFrog(std::vector<int>& A)
+intptr_t FibFrog(std::vector<int>& A)
 {
     A.insert(A.begin(), 1);
     A.push_back(1);
 
-    std::vector<int> fib = FibonacciUpTo(A.size());
+    std::vector<intptr_t> fib = FibonacciUpTo(A.size());
 
-    std::vector<int> jmps(A.size(), A.size());
+    std::vector<intptr_t> jmps(A.size(), A.size());
     jmps[0] = 0;
 
-    for (int i = 1; i < static_cast<int>(A.size()); ++i)
+    for (intptr_t i = 1; i < static_cast<decltype(i)>(A.size()); ++i)
     {
         if (A[i] == 1)
         {
@@ -869,10 +871,10 @@ int FibFrog(std::vector<int>& A)
 
 std::vector<int> Ladder(const std::vector<int>& A, const std::vector<int>& B)
 {
-    int maxIdx = *std::max_element(A.begin(), A.end());
+    intptr_t maxIdx = *std::max_element(A.begin(), A.end());
     std::vector<unsigned long long> fib(maxIdx + 1, 1);
 
-    for (int i = 2; i <= maxIdx; ++i)
+    for (intptr_t i = 2; i <= maxIdx; ++i)
     {
         fib[i] = fib[i - 2] + fib[i - 1];
     }
@@ -907,7 +909,7 @@ int MinMaxDivision(int K, int M, const std::vector<int>& A)
     {
         int mdl = (min + max) / 2, blocks = 1;
 
-        for (int i = 0, sum = 0; i < static_cast<int>(A.size()); ++i)
+        for (int i = 0, sum = 0; i < static_cast<decltype(i)>(A.size()); ++i)
         {
             sum += A[i];
 
@@ -931,7 +933,7 @@ int MinMaxDivision(int K, int M, const std::vector<int>& A)
     return min;
 }
 
-int NailingPlanks(std::vector<int>& A, std::vector<int>& B, const std::vector<int>& C)
+intptr_t NailingPlanks(std::vector<int>& A, std::vector<int>& B, const std::vector<int>& C)
 {
     /*std::list<std::pair<int, int>> planks;
     std::transform(A.begin(), A.end(), B.begin(), std::back_inserter(planks),
@@ -998,18 +1000,20 @@ int NailingPlanks(std::vector<int>& A, std::vector<int>& B, const std::vector<in
     {
         size_t cur = (min + max) / 2;
 
-        std::unordered_set<int> pos(C.begin(), C.begin() + cur);
+        std::unordered_set<intptr_t> pos(C.begin(), C.begin() + cur);
 
-        std::vector<int> nails(*std::max_element(B.begin(), B.end()) + 1, 0);
+        std::vector<int> nails(static_cast<size_t>(*std::max_element(B.begin(), B.end())) + 1, 0);
+
         for (size_t i = 1; i < nails.size(); ++i)
         {
             nails[i] = nails[i - 1] + (pos.find(i) == pos.end() ? 0 : 1);
         }
 
         size_t plank = 0;
+
         for (; plank < A.size(); ++plank)
         {
-            if (nails[B[plank]] - nails[A[plank] - 1] == 0)
+            if (nails[B[plank]] - nails[static_cast<size_t>(A[plank]) - 1] == 0)
             {
                 break;
             }
@@ -1032,7 +1036,7 @@ int NailingPlanks(std::vector<int>& A, std::vector<int>& B, const std::vector<in
     return min <= C.size() ? min : -1;
 }
 
-int AbsDistinct(const std::vector<int>& A)
+intptr_t AbsDistinct(const std::vector<int>& A)
 {
     std::unordered_set<int> s;
 
@@ -1114,7 +1118,7 @@ int MinAbsSumOfTwo(std::vector<int>& A)
 {
     std::sort(A.begin(), A.end());
 
-    int res = std::numeric_limits<int>::max();
+    int res = std::numeric_limits<decltype(res)>::max();
 
     for (int l = 0, r = static_cast<int>(A.size()) - 1; l <= r;)
     {
@@ -1323,7 +1327,7 @@ int main()
 
     //std::cout << MissingInteger({ 1,3,5,6,1,2 });
 
-    //std::cout << PermCheck({ 4,1,3 });
+    //std::cout << PermCheck({ 4,1,3,2 });
 
     //std::cout << CountDiv(1, 6, 2);
 
