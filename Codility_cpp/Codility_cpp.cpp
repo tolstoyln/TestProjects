@@ -214,17 +214,15 @@ std::vector<int> GenomicRangeQuery(const std::string& S, const std::vector<int>&
         res[i] = *std::min_element(imp.begin() + P[i], imp.begin() + Q[i] + 1);
     }*/
 
-    std::unordered_map<char, size_t> def{ {'A', 1}, {'C', 2}, {'G', 3}, {'T', 4} };
+    std::unordered_map<char, int> def{ {'A', 1}, {'C', 2}, {'G', 3}, {'T', 4} };
 
     std::vector<std::vector<int>> imp(def.size(), std::vector<int>(S.length()));
 
     for (size_t i = 0; i < S.length(); ++i)
     {
-        size_t idx = def[S[i]] - 1;
-
         for (size_t j = 0; j < imp.size(); ++j)
         {
-            imp[j][i] = (i > 0 ? imp[j][i - 1] : 0) + (j == idx ? 1 : 0);
+            imp[j][i] = (i > 0 ? imp[j][i - 1] : 0) + (std::next(def.begin(), j)->first == S[i] ? 1 : 0);
         }
     }
 
@@ -234,9 +232,9 @@ std::vector<int> GenomicRangeQuery(const std::string& S, const std::vector<int>&
     {
         for (size_t j = 0; j < imp.size(); ++j)
         {
-            if (def[S[P[i]]] == j + 1 || imp[j][Q[i]] - imp[j][P[i]] > 0)
+            if (S[P[i]] == std::next(def.begin(), j)->first || imp[j][Q[i]] - imp[j][P[i]] > 0)
             {
-                res[i] = static_cast<int>(j) + 1;
+                res[i] = std::next(def.begin(), j)->second;
                 break;
             }
         }
