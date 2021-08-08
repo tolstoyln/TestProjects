@@ -320,8 +320,8 @@ int NumberOfDiscIntersections(const std::vector<int>& A)
 
     for (size_t i = 0; i < A.size(); ++i)
     {
-        m[static_cast<long long>(i) - A[i]].first = ++m[static_cast<long long>(i) - A[i]].first;
-        m[static_cast<long long>(i) + A[i]].second = ++m[static_cast<long long>(i) + A[i]].second;
+        ++m[static_cast<long long>(i) - A[i]].first;
+        ++m[static_cast<long long>(i) + A[i]].second;
     }
 
     int count = 0, result = 0;
