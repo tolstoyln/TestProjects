@@ -18,11 +18,14 @@ namespace GraphProcessor
             p.AddDependency("E", "B");
             p.AddUnit("F");
             p.AddDependency("F", "A");
-            //p.AddDependency("B", "C");
+            p.AddDependency("B", "C");
 
             p.Start();
 
-            Console.ReadKey();
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Console.ReadKey();
+            }
         }
     }
 
@@ -43,11 +46,14 @@ namespace GraphProcessor
         }
         public void Start()
         {
-            /*foreach (KeyValuePair<string, ProcUnit> pu in units)
+            /*List<Task> tasks = new List<Task>();
+            foreach (KeyValuePair<string, ProcUnit> pu in units)
             {
-                pu.Value.Start();
-            }*/
-            Parallel.ForEach(units, pu => { pu.Value.Start(); });
+                tasks.Add(Task.Run(() => pu.Value.Start()));
+            }
+            Task.WaitAll(tasks.ToArray());*/
+            Parallel.ForEach(units, pu => pu.Value.Start());
+            Console.WriteLine("All completed");
         }
         private Dictionary<string, ProcUnit> units = new Dictionary<string, ProcUnit>();
     }
@@ -62,7 +68,11 @@ namespace GraphProcessor
         {
             if (!parents.ContainsKey(pu.Name))
             {
-                pu.ProcessComplete += OnParentProcessComplete;
+                pu.ProcessComplete += (name, res) =>
+                {
+                    parents[name] = res;
+                    Interlocked.Decrement(ref parentCount);
+                };
                 ++parentCount;
                 parents[pu.Name] = null;
             }
@@ -86,11 +96,11 @@ namespace GraphProcessor
             //_ = Task.Factory.StartNew(() => { Process(); });
             _ = Task.Run(() => { Process(); });
         }*/
-        private void OnParentProcessComplete(string name, Result res)
+        /*private void OnParentProcessComplete(string name, Result res)
         {
             parents[name] = res;
             Interlocked.Decrement(ref parentCount);
-        }
+        }*/
         private void Process()
         {
             Console.WriteLine(string.Format("{0} processing started - ThreadId: {1}", Name, Thread.CurrentThread.ManagedThreadId));
