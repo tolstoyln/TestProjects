@@ -1,0 +1,10 @@
+<Gate operation="AND" inputs="3">
+	<Gate operation="OR" inputs="3">
+		<Gate operation="NOT" inputs="1"/>
+		<Gate operation="XOR" inputs="2"/>
+	</Gate>
+	<Gate operation="XOR" inputs="2">
+		<Gate operation="AND" inputs="2"/>
+		<Gate operation="XOR" inputs="2"/>
+	</Gate>
+</Gate>
