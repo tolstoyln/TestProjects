@@ -1,0 +1,54 @@
+// GraphSample.idl : type library source for ActiveX Control project.
+
+// This file will be processed by the MIDL compiler tool to
+// produce the type library (GraphSample.tlb) that will become a resource in
+// GraphSample.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(7a08b7d7-ca21-464b-819f-e6e57b3a22d3), version(1.0),
+  control ]
+library GraphSampleLib
+{
+	importlib(STDOLE_TLB);
+
+	//  Primary dispatch interface for CGraphSampleCtrl
+	[ 
+		uuid(5cbf15d6-a09b-470b-a78c-a03648c0e291)
+	]
+	dispinterface _DGraphSample
+	{
+		properties:
+			[id(1)] long Mode;
+			[id(2)] long Interval;
+		methods:
+			[id(10)] void Clear();
+			[id(20)] void AddValue(long val);
+			[id(30)] BSTR WritePDF(BSTR patient, BSTR pdfFile);
+	};
+
+	//  Event dispatch interface for CGraphSampleCtrl
+
+	[ 
+		uuid(6c5b52be-c011-4993-b04f-6d425b524035)
+	]
+	dispinterface _DGraphSampleEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+	};
+
+	//  Class information for CGraphSampleCtrl
+	[
+		uuid(015662fe-fbd6-4ffb-a154-cb6bbc9ad455)
+	]
+	coclass GraphSample
+	{
+		[default] dispinterface _DGraphSample;
+		[default, source] dispinterface _DGraphSampleEvents;
+	};
+
+};
