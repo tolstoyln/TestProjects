@@ -1,0 +1,18 @@
+import "oaidl.idl";
+
+[uuid(709FF59B-CDA4-4D7E-8830-251DFA155656), version(1.0)]
+library SampleAutomationLibrary
+{
+	[uuid(709FF59B-CDA4-4D7E-8831-251DFA155656), oleautomation]
+	interface ISampleAutomationObject : IDispatch
+	{
+		[id(1), helpstring("Displays message.")]
+		boolean ShowMessage([in] BSTR message);
+	};
+
+	[uuid(709FF59B-CDA4-4D7E-8832-251DFA155656)]
+	coclass SampleAutomationObject
+	{
+		[default] interface ISampleAutomationObject;
+	};
+};
